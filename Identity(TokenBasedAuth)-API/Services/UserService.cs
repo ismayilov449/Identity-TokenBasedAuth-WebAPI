@@ -91,8 +91,7 @@ namespace Identity_TokenBasedAuth__API.Services
             user.Email = userViewModel.Email;
             user.Picture = userViewModel.Picture;
             user.UserName = userViewModel.UserName;
-
-
+             
             IdentityResult result = await userManager.UpdateAsync(user);
 
             if (result.Succeeded)
