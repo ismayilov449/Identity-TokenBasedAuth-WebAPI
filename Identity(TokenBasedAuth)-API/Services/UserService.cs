@@ -76,7 +76,7 @@ namespace Identity_TokenBasedAuth__API.Services
         {
             var user = await userManager.FindByNameAsync(userName); 
 
-            if(userManager.Users.Count(u=> u.PhoneNumber == userViewModel.PhoneNumber) > 1)
+            if(userManager.Users.Count(u=> u.PhoneNumber == userViewModel.PhoneNumber) >= 1)
             {
                 return new BaseResponse<UserViewModelResource>("This number was used by another user!");
             }
