@@ -11,9 +11,8 @@ namespace Identity_TokenBasedAuth__API.ResourceViewModel
     {
 
         [Required(ErrorMessage = "Invalid username")]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
-        [Required(ErrorMessage = "Invalid phone number")]
         public string PhoneNumber { get; set; }
 
         [Required(ErrorMessage = "Invalid email address")]

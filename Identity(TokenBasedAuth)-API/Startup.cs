@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Identity_TokenBasedAuth__API.Domain.Services;
 using Identity_TokenBasedAuth__API.Models;
 using Identity_TokenBasedAuth__API.Security.Token;
+using Identity_TokenBasedAuth__API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,6 +32,21 @@ namespace Identity_TokenBasedAuth__API
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddScoped<ITokenHandler, TokenHandler>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IUserService, UserService>();
+
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                });
+
+            });
+
+
             services.AddDbContext<AppIdentityDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString"));
@@ -50,27 +67,28 @@ namespace Identity_TokenBasedAuth__API
             services.Configure<CustomTokenOptions>(Configuration.GetSection("TokenOptions"));
             var tokenOptions = Configuration.GetSection("TokenOptions").Get<CustomTokenOptions>();
 
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }
-            ).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,jwtBearerOptions =>
-            {
-                jwtBearerOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
-                {
-                    ValidateAudience = true,
-                    ValidateIssuer = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = tokenOptions.Issuer,
-                    ValidAudience = tokenOptions.Audience,
-                    IssuerSigningKey = SignHandler.GetSecurityKey(tokenOptions.SecurityKey),
-                    ClockSkew = TimeSpan.Zero
-                     
-                };
+            ).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtBearerOptions =>
+             { 
+                 jwtBearerOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                 {
+                     ValidateAudience = true,
+                     ValidateIssuer = true,
+                     ValidateLifetime = true,
+                     ValidateIssuerSigningKey = true,
+                     ValidIssuer = tokenOptions.Issuer,
+                     ValidAudience = tokenOptions.Audience,
+                     IssuerSigningKey = SignHandler.GetSecurityKey(tokenOptions.SecurityKey),
+                     ClockSkew = TimeSpan.Zero
 
-            });
+                 };
+
+             });
 
 
 
@@ -89,6 +107,8 @@ namespace Identity_TokenBasedAuth__API
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseAuthentication();
+            app.UseStaticFiles();
 
             app.UseHttpsRedirection();
             app.UseMvc();

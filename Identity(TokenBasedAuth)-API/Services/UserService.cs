@@ -80,13 +80,17 @@ namespace Identity_TokenBasedAuth__API.Services
             {
                 return new BaseResponse<UserViewModelResource>("This number was used by another user!");
             }
+            else
+            {
+                user.PhoneNumber = userViewModel.PhoneNumber;
+            }
 
             user.BirthDay = userViewModel.BirthDay;
             user.City = userViewModel.City;
             user.Gender = (int)userViewModel.Gender;
             user.Email = userViewModel.Email;
             user.Picture = userViewModel.Picture;
-            user.UserName = userViewModel.Username;
+            user.UserName = userViewModel.UserName;
 
             IdentityResult result = await userManager.UpdateAsync(user);
 
